@@ -1,0 +1,20 @@
+{
+    "name": "InfiniteOrbit.Editor",
+    "rootNamespace": "InfiniteOrbit.EditorTools",
+    "references": [
+        "InfiniteOrbit.Math",
+        "InfiniteOrbit.Core",
+        "InfiniteOrbit.Presentation"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  math:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: NUnit tests (math + session)
+        run: dotnet test Tools/InfiniteOrbit.sln -c Release
+      - name: Unity script compile check
+        run: dotnet build Tools/InfiniteOrbit.UnityCompileCheck -c Release
+      - name: Simulator smoke run (1M spins)
+        run: dotnet run -c Release --project Tools/InfiniteOrbit.Simulator -- --spins 1000000

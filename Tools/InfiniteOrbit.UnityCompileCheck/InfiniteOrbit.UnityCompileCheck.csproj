@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Compile-only check of the Unity presentation scripts against UnityEngine reference assemblies
+    (UnityEngine.Modules 2021.3 from NuGet), for CI machines without a Unity editor/licence.
+    It proves the scripts type-check; it does not run them. Unity 6 itself remains the real target.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="UnityEngine.Modules" Version="2021.3.33" PrivateAssets="all" />
+    <ProjectReference Include="../InfiniteOrbit.Logic/InfiniteOrbit.Logic.csproj" />
+    <Compile Include="../../Assets/InfiniteOrbit/Scripts/Presentation/**/*.cs" LinkBase="Presentation" />
+  </ItemGroup>
+</Project>
