@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Builds the Unity-free game logic straight from the Unity project's source folders, so the simulator and
+    NUnit tests compile exactly the code the game ships. netstandard2.1 + C# 9 mirror Unity 6's constraints.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>InfiniteOrbit.Logic</AssemblyName>
+    <RootNamespace>InfiniteOrbit</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/InfiniteOrbit/Scripts/Math/**/*.cs" LinkBase="Math" />
+    <Compile Include="../../Assets/InfiniteOrbit/Scripts/Core/**/*.cs" LinkBase="Core" />
+  </ItemGroup>
+</Project>
