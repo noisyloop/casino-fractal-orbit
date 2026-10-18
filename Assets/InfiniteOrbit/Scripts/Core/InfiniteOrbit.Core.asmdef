@@ -1,0 +1,16 @@
+{
+    "name": "InfiniteOrbit.Core",
+    "rootNamespace": "InfiniteOrbit.Core",
+    "references": [
+        "InfiniteOrbit.Math"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}
