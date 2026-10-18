@@ -1,12 +1,75 @@
 using System;
 using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Text;
 using InfiniteOrbit.GameMath;
 
-var config = InfiniteOrbitMath.CreateConfig();
-long rounds = args.Length > 0 ? long.Parse(args[0]) : 1_000_000;
-var sw = Stopwatch.StartNew();
-var s = Simulation.Run(config, 20261018UL, rounds);
-Console.WriteLine($"rounds {s.Rounds:N0} in {sw.Elapsed.TotalSeconds:F1}s");
-Console.WriteLine($"RTP {s.Rtp:P3} ±{s.Rtp95HalfWidth:P3}  base lines {s.RtpOf(s.BaseLineWin):P2} (exact {Analytics.LineRtp(config, config.BaseReels):P2}) scatter {s.RtpOf(s.BaseScatterWin):P2} (exact {Analytics.ScatterRtp(config, config.BaseReels):P2}) FS {s.RtpOf(s.FreeSpinsWin):P2} HS {s.RtpOf(s.HoldAndSpinWin):P2}");
-Console.WriteLine($"hit {s.HitFrequency:P2} SD {s.StdDev:F2} FS {SimulationStats.OneIn(s.FreeSpinTriggers, s.Rounds)} HS {SimulationStats.OneIn(s.HoldAndSpinTriggers, s.Rounds)} max {s.MaxWinMultiple:F1}x");
-Console.WriteLine($"FS avg {(double)s.FreeSpinsWin / Math.Max(1, s.FreeSpinTriggers) / 25:F1}x spins {(double)s.FreeSpinsPlayed / Math.Max(1, s.FreeSpinTriggers):F1}; HS avg {(double)s.HoldAndSpinWin / Math.Max(1, s.HoldAndSpinTriggers) / 25:F1}x orbs {(double)s.HoldAndSpinFinalOrbs / Math.Max(1, s.HoldAndSpinTriggers):F2} grand {s.HoldAndSpinFullScreens}");
+namespace InfiniteOrbit.Simulator
+{
+    /// <summary>
+    /// Monte Carlo simulator for Infinite Orbit.
+    ///   dotnet run -c Release -- [--spins N] [--seed S] [--bet-level L] [--par docs/PAR.md] [--sequential]
+    /// </summary>
+    public static class Program
+    {
+        public const long DefaultSpins = 10_000_000;
+        public const ulong DefaultSeed = 20261018UL;
+
+        public static int Main(string[] args)
+        {
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+
+            long spins = DefaultSpins;
+            ulong seed = DefaultSeed;
+            int betLevel = 0;
+            string parPath = null;
+            bool parallel = true;
+
+            for (int i = 0; i < args.Length; i++)
+            {
+                switch (args[i])
+                {
+                    case "--spins": spins = long.Parse(args[++i].Replace("_", "")); break;
+                    case "--seed": seed = ulong.Parse(args[++i]); break;
+                    case "--bet-level": betLevel = int.Parse(args[++i]); break;
+                    case "--par": parPath = args[++i]; break;
+                    case "--sequential": parallel = false; break;
+                    case "-h":
+                    case "--help":
+                        Console.WriteLine("Usage: InfiniteOrbit.Simulator [--spins N] [--seed S] [--bet-level 0-4] [--par path.md] [--sequential]");
+                        return 0;
+                    default:
+                        Console.Error.WriteLine($"Unknown argument '{args[i]}'. Use --help.");
+                        return 1;
+                }
+            }
+
+            var config = InfiniteOrbitMath.CreateConfig();
+            Console.WriteLine($"{config.GameName} math {config.Version} | {spins:N0} rounds | seed {seed} | bet {config.TotalBetForLevel(betLevel)} credits | {(parallel ? Environment.ProcessorCount + " threads" : "1 thread")}");
+
+            var sw = Stopwatch.StartNew();
+            long lastReport = 0;
+            var stats = Simulation.Run(config, seed, spins, betLevel, parallel, done =>
+            {
+                if (done - lastReport < spins / 10 && done != spins) return;
+                lastReport = done;
+                Console.Error.Write($"\r  {100.0 * done / spins,5:F1}%  ");
+            });
+            Console.Error.WriteLine();
+            sw.Stop();
+
+            var report = new Report(config, stats, seed, betLevel, sw.Elapsed);
+            Console.WriteLine(report.ConsoleSummary());
+
+            if (parPath != null)
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(parPath)));
+                File.WriteAllText(parPath, new ParSheetWriter(config, report).Write(), new UTF8Encoding(false));
+                Console.WriteLine($"PAR sheet written to {parPath}");
+            }
+            return 0;
+        }
+    }
+}
