@@ -2,7 +2,8 @@
     "name": "InfiniteOrbit.Tests",
     "rootNamespace": "InfiniteOrbit.Tests",
     "references": [
-        "InfiniteOrbit.Math"
+        "InfiniteOrbit.Math",
+        "InfiniteOrbit.Core"
     ],
     "includePlatforms": [
         "Editor"
