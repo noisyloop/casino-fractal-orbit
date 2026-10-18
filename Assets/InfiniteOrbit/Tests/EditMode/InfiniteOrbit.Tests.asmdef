@@ -1,0 +1,22 @@
+{
+    "name": "InfiniteOrbit.Tests",
+    "rootNamespace": "InfiniteOrbit.Tests",
+    "references": [
+        "InfiniteOrbit.Math"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": true
+}
